@@ -5,6 +5,7 @@
 # Session Data files
 .RData
 .RDataTmp
+.csv
 
 # User-specific files
 .Ruserdata
@@ -38,6 +39,7 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+.renv/library
 
 # pkgdown site
 docs/
