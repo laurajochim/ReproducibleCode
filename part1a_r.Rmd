@@ -42,27 +42,44 @@ url <- 'https://archive.ics.uci.edu/static/public/544/estimation+of+obesity+leve
 
 #DOwnload data and safe in data/
 tmp <- GET(url, write_disk('data/data.zip', overwrite = TRUE))
-stop_for_status(tmp)
+httr::stop_for_status(tmp)
 
 #unzip
-unzip('data/data.zip', exdir = './data')
+utils::unzip('data/data.zip', exdir = './data')
 
-Obesity_raw <- read_csv('data/ObesityDataSet_raw_and_data_sinthetic.csv', show_col_types = FALSE)
+obesity_raw <- read_csv('data/ObesityDataSet_raw_and_data_sinthetic.csv', show_col_types = FALSE)
 ```
 
 ```{r}
-df_web <- df[1:498, ]
-df_synthetic <- df[499:nrow(df), ]
-df_web
+#Split data into the collected data and synthetic part (from row 499)
+df_web <- obesity_raw[1:498, ]
+df_synthetic <- obesity_raw[499:nrow(obesity_raw), ]
+View(web_df)
 ```
 
 ```{r}
-X_columns <- c('Gender', 'Age', 'BMI')
+#Making the variable BMI
+#X_columns <- c('Gender', 'Age', 'BMI')
 
-df_web$BMI <- df_web$Weight / (df_web$Height)^2
-df_synthetic$BMI <- df_synthetic$Weight / (df_synthetic$Height)^2
+bmi <- function(weight, height){
+  message("Returns the BMI")
 
-plot(df_web$BMI, type = 'l')
+  if(any(height >3)){
+  warning("Height must be in meters, eg. 1.7 instead of 170")
+}
+weight/(height)^2
+
+}
+
+#test the function
+bmi(70, 1.70)
+
+
+#inlcude BMI to both data sets
+df_web$BMI <- bmi(df_web$Weight, df_web$Height)
+
+df_synthetic$BMI <- bmi(df_synthetic$Weight, df_synthetic$Height)
+
 
 outcomes <- c()
 for (bmi in df_web$BMI) {
@@ -76,8 +93,13 @@ for (bmi in df_web$BMI) {
     outcomes <- c(outcomes, '3_obese')
   }
 }
-
 df_web$label <- outcomes
+
+#plot the BMI of df_web as a histogram in each category
+ggplot(df_web, aes(x = df_web$BMI)) +
+geom_bar(fill = "lightblue") +
+theme_minimal() +
+labs(x = "BMI category", y = "Count")
 ```
 
 ```{r}
