@@ -21,7 +21,8 @@ For the full assessment criteria see the Rubric. For full details on the assignm
 # Virtual Environment Setup for R
 install.packages('renv', repos='http://cran.us.r-project.org')
 library(renv)
-renv::init()
+#renv::init()
+renv::activate()
 
 #Load necessary packages
 renv::install('httr', repos='http://cran.us.r-project.org')
@@ -34,6 +35,7 @@ renv::install("testthat")
 renv::install("tidyverse")
 renv::install("dplyr")
 renv::install("devtools")
+renv::install("testthat")
 
 library(httr)
 library(readr)
@@ -45,6 +47,10 @@ library(testthat)
 library(tidyverse)
 library(dplyr)
 library(devtools)
+library(testthat)
+
+#source functions from my function folder
+source(file.path("R", "Rfunctions.R"))
 ```
 
 ```{r Load the Data, echo=F}
@@ -71,6 +77,7 @@ View(df_web)
 
 ```{r}
 #Inlcude BMI to both data sets
+
 df_web$BMI <- bmi(df_web$Weight, df_web$Height)
 df_synthetic$BMI <- bmi(df_synthetic$Weight, df_synthetic$Height)
 
@@ -117,34 +124,44 @@ df_web <- df_web %>%
 ## Regression problem
 
 ```{r}
+# Investigate class imbalance of BMI categories
 classes <- sort(unique(df_web$label))
 freq <- table(df_web$label)
 class_weight <- length(df_web$label) / (length(classes) * as.numeric(freq))
 names(class_weight) <- names(freq)
 
-print(classes)
 print(class_weight)
 ```
 
 ```{r}
-# Note: result can deviate from the python code due to random seed!
+# Split data into train/test with 70/30 split for the variables Gender, Age, and BMI
 set.seed(42)
 idx <- seq_len(nrow(df_web))
 
 idx_train <- sample(idx, size = floor(0.7 * length(idx)))
 idx_test <- setdiff(idx, idx_train)
 
+#predictors
+X_columns <- c('Age', 'Gender', 'family_history_with_overweight',
+               'FAVC', 'FCVC', 'NCP', 'CAEC', 'SMOKE', 'CH2O', 'SCC', 'FAF', 'TUE',
+               'CALC', 'MTRANS')
+
+#predictor train and test data
 X_train <- df_web[idx_train, X_columns]
 X_test <- df_web[idx_test, X_columns]
+
+#outcome train and test data
 y_train <- df_web$BMI[idx_train]
 y_test <- df_web$BMI[idx_test]
 
+#define sample weight for training data
 sample_weights <- class_weight[df_web$label[idx_train]]
 ```
 
 ```{r}
+#Run random forest and linear regression on the training data
 reg <- lm(BMI ~ ., data = cbind(X_train, BMI = y_train))
-reg <- randomForest(x = X_train, y = y_train, ntree = 100, nodesize = 5, maxnodes = 20)
+rf <- randomForest(x = X_train, y = y_train, ntree = 100, nodesize = 5, maxnodes = 20)
 ```
 
 ```{r}
