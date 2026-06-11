@@ -13,3 +13,14 @@ weight/(height)^2
 
 }
 
+
+#Convert categorical vairbales in to binary numeric variables
+binary <- function(variable, reference) {
+  message("Returns a binary vairable with 1 as reference.")
+
+  if(!is.character(variable)) {
+    stop("Variable must be a character vector.")
+  }
+
+  ifelse(variable == reference, 1, 0)
+}
