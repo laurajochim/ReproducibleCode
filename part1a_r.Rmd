@@ -102,7 +102,9 @@ ggplot(df_web, aes(x = label)) +
 
 #Add the varibale "active" to the data set, where active is 1 if the person commutes by walk or bike, and 0 for the rest.
 df_web <- df_web %>%
-  mutate(active = ifelse(MTRANS %in% c("Walking", "Bike"), 1, 0))
+  mutate(MTRANS = ifelse(MTRANS %in% c("Walking", "Bike"), 1, 0))
+
+df_web$MTRANS <- binary(df_web$MTRANS, c("Walking", "Biking"))
 
 #Convert categorical variables to numeric.
 df_web$Gender <- binary(df_web$Gender, "Male")
@@ -121,7 +123,8 @@ df_web <- df_web %>%
 
 
 
-## Regression problem
+
+## Predicting BMI using the Real Data
 
 ```{r}
 # Investigate class imbalance of BMI categories
@@ -142,13 +145,13 @@ idx_train <- sample(idx, size = floor(0.7 * length(idx)))
 idx_test <- setdiff(idx, idx_train)
 
 #predictors
-X_columns <- c('Age', 'Gender', 'family_history_with_overweight',
+predictors <- c('Age', 'Gender', 'family_history_with_overweight',
                'FAVC', 'FCVC', 'NCP', 'CAEC', 'SMOKE', 'CH2O', 'SCC', 'FAF', 'TUE',
                'CALC', 'MTRANS')
 
 #predictor train and test data
-X_train <- df_web[idx_train, X_columns]
-X_test <- df_web[idx_test, X_columns]
+X_train <- df_web[idx_train, predictors]
+X_test <- df_web[idx_test, predictors]
 
 #outcome train and test data
 y_train <- df_web$BMI[idx_train]
