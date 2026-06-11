@@ -28,11 +28,15 @@ renv::install('httr', repos='http://cran.us.r-project.org')
 renv::install('readr', repos='http://cran.us.r-project.org')
 renv::install('ggplot2', repos='http://cran.us.r-project.org')
 renv::install('randomForest', repos='http://cran.us.r-project.org')
+renv::install("styler")
+renv::install("lintr")
 
 library(httr)
 library(readr)
 library(ggplot2)
 library(randomForest)
+library(styler)
+library(lintr)
 ```
 
 ```{r Load the Data, echo=F}
@@ -58,28 +62,14 @@ View(web_df)
 ```
 
 ```{r}
-#Making the variable BMI
-#X_columns <- c('Gender', 'Age', 'BMI')
-
-bmi <- function(weight, height){
-  message("Returns the BMI")
-
-  if(any(height >3)){
-  warning("Height must be in meters, eg. 1.7 instead of 170")
-}
-weight/(height)^2
-
-}
-
-#test the function
-bmi(70, 1.70)
-
-
 #inlcude BMI to both data sets
 df_web$BMI <- bmi(df_web$Weight, df_web$Height)
 
 df_synthetic$BMI <- bmi(df_synthetic$Weight, df_synthetic$Height)
 
+# Assign labels to the web data set based on BMI categories
+
+df_web$label <- 
 
 outcomes <- c()
 for (bmi in df_web$BMI) {
@@ -144,6 +134,7 @@ X_columns <- c('Age', 'Gender', 'family_history_with_overweight',
                'FAVC', 'FCVC', 'NCP', 'CAEC', 'SMOKE', 'CH2O', 'SCC', 'FAF', 'TUE',
                'CALC', 'MTRANS')
 ```
+
 
 
 
