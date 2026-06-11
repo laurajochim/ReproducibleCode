@@ -1,0 +1,10 @@
+Package: reproduciblecode
+Type: Package
+Title: Reproducible Code for Assignment
+Version: 0.1.0
+Authors@R: person("Laura", "Jochim", email = "l.jochim@umcutrecht.nl", role = c("aut", "cre"))
+Description: A small package containing reproducible utility functions for BMI calculation and binary encoding, with testthat unit tests.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.3
