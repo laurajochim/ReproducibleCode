@@ -5,6 +5,8 @@
 # Session Data files
 .RData
 .RDataTmp
+.csv
+.zip
 
 # User-specific files
 .Ruserdata
@@ -38,6 +40,7 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+/renv
 
 # pkgdown site
 docs/
@@ -47,3 +50,5 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+
