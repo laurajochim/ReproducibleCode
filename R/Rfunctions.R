@@ -28,7 +28,14 @@ weight/(height)^2
 
 
 #Convert categorical vairbales in to binary numeric variables
-#'
+#' description
+#' Returns a binary variable with 1 as reference
+#' @param variable as a character
+#' @param reference as a character
+#' @return A binary vector with 1 as a reference
+#' @export
+#' @example
+#' binary(c(a, b, "c", b))
 binary <- function(variable, reference) {
   message("Returns a binary vairable with 1 as reference.")
 
