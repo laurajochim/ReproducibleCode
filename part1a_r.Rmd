@@ -19,10 +19,10 @@ For the full assessment criteria see the Rubric. For full details on the assignm
 
 ```{r Set up Environment and Load PAckages, echo=F}
 # Virtual Environment Setup for R
-#renv::init()
-#renv::activate()
+# renv::init()
+# renv::activate()
 
-#Load necessary packages
+# Load necessary packages
 library(httr)
 library(readr)
 library(ggplot2)
@@ -37,7 +37,7 @@ library(testthat)
 library(roxygen2)
 library(reproduciblecode)
 
-#source functions from my function folder
+# source functions from my function folder
 source(file.path("R", "Rfunctions.R"))
 ```
 
@@ -46,29 +46,29 @@ source(file.path("R", "Rfunctions.R"))
 This data set is retrieved from the UCI website. We have `498` subjects that have been surveyed and the rest is synthetically generated. THe data is in tabular format and describes for each subject `Demographics`, `Physical Attributes`, and other variables measured like `Smoking`. In this file we will explore the data and build a regression/Random Forest model to predict `BMI`. 
 
 ```{r Load the Data, echo=F}
-#Now we load the data from the UCI repository. We will download the zip file, extract it, and read the CSV file.
+# Now we load the data from the UCI repository. We will download the zip file, extract it, and read the CSV file.
 
-url <- 'https://archive.ics.uci.edu/static/public/544/estimation+of+obesity+levels+based+on+eating+habits+and+physical+condition.zip'
+url <- "https://archive.ics.uci.edu/static/public/544/estimation+of+obesity+levels+based+on+eating+habits+and+physical+condition.zip"
 
-#DOwnload data and safe in data/
-tmp <- GET(url, write_disk('data/data.zip', overwrite = TRUE))
+# DOwnload data and safe in data/
+tmp <- GET(url, write_disk("data/data.zip", overwrite = TRUE))
 httr::stop_for_status(tmp)
 
-#unzip
-utils::unzip('data/data.zip', exdir = './data')
+# unzip
+utils::unzip("data/data.zip", exdir = "./data")
 
-obesity_raw <- read_csv('data/ObesityDataSet_raw_and_data_sinthetic.csv', show_col_types = FALSE)
+obesity_raw <- read_csv("data/ObesityDataSet_raw_and_data_sinthetic.csv", show_col_types = FALSE)
 ```
 
 ```{r}
-#Split data into the collected data and synthetic part (from row 499)
+# Split data into the collected data and synthetic part (from row 499)
 df_web <- obesity_raw[1:498, ]
 df_synthetic <- obesity_raw[499:nrow(obesity_raw), ]
 View(df_web)
 ```
 
 ```{r}
-#Inlcude BMI to both data sets
+# Inlcude BMI to both data sets
 
 df_web$BMI <- bmi(df_web$Weight, df_web$Height)
 df_synthetic$BMI <- bmi(df_synthetic$Weight, df_synthetic$Height)
@@ -82,7 +82,7 @@ df_web <- df_web %>%
     BMI >= 30 ~ "3_obese"
   ))
 
-#plot the BMI of df_web as a histogram in each category
+# plot the BMI of df_web as a histogram in each category
 ggplot(df_web, aes(x = label)) +
   geom_bar(fill = "lightblue") +
   theme_minimal() +
@@ -91,7 +91,7 @@ ggplot(df_web, aes(x = label)) +
 
 ```{r}
 # Data restructuring
-#Convert categorical variables to numeric.
+# Convert categorical variables to numeric.
 
 df_web$MTRANS <- binary(df_web$MTRANS, c("Walking", "Biking"))
 df_web$Gender <- binary(df_web$Gender, "Male")
@@ -101,10 +101,12 @@ df_web$SMOKE <- binary(df_web$SMOKE, "yes")
 df_web$SCC <- binary(df_web$SCC, "yes")
 
 
-#Convert ordinal variables into numeric ones, starting from 0..
+# Convert ordinal variables into numeric ones, starting from 0..
 df_web <- df_web %>%
-  mutate(CAEC = as.numeric(factor(CAEC, levels = c('no', 'Sometimes', 'Frequently', 'Always'))) -1,
-         CALC = as.numeric(factor(CALC, levels = c('no', 'Sometimes', 'Frequently', 'Always'))) -1)
+  mutate(
+    CAEC = as.numeric(factor(CAEC, levels = c("no", "Sometimes", "Frequently", "Always"))) - 1,
+    CALC = as.numeric(factor(CALC, levels = c("no", "Sometimes", "Frequently", "Always"))) - 1
+  )
 ```
 
 
@@ -134,40 +136,42 @@ idx <- seq_len(nrow(df_web))
 idx_train <- sample(idx, size = floor(0.7 * length(idx)))
 idx_test <- setdiff(idx, idx_train)
 
-#predictors
-predictors <- c('Age', 'Gender', 'family_history_with_overweight',
-               'FAVC', 'FCVC', 'NCP', 'CAEC', 'SMOKE', 'CH2O', 'SCC', 'FAF', 'TUE',
-               'CALC', 'MTRANS')
+# predictors
+predictors <- c(
+  "Age", "Gender", "family_history_with_overweight",
+  "FAVC", "FCVC", "NCP", "CAEC", "SMOKE", "CH2O", "SCC", "FAF", "TUE",
+  "CALC", "MTRANS"
+)
 
-#predictor train and test data
+# predictor train and test data
 X_train <- df_web[idx_train, predictors]
 X_test <- df_web[idx_test, predictors]
 
-#outcome train and test data
+# outcome train and test data
 y_train <- df_web$BMI[idx_train]
 y_test <- df_web$BMI[idx_test]
 
-#define sample weight for training data
+# define sample weight for training data
 sample_weights <- class_weight[df_web$label[idx_train]]
 ```
 
 ## Run random forest
 
 ```{r}
-#Run random forest on the training data
+# Run random forest on the training data
 rf <- randomForest(x = X_train, y = y_train, ntree = 100, nodesize = 5, maxnodes = 20)
 ```
 
 ## Extract predicted values and plot
 
 ```{r}
-#Extract the predicted values for the test data and plot them against the true values.
+# Extract the predicted values for the test data and plot them against the true values.
 
 preds_test <- predict(rf, X_test)
 
 ggplot(data = data.frame(preds_test, y_test), aes(x = preds_test, y = y_test)) +
   geom_point(alpha = 0.5) +
-  geom_abline(slope = 1, intercept = 0, color = 'red', linetype = 'dashed') +
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +
   labs(x = "Predicted BMI", y = "True BMI") +
   theme_minimal()
 ```
@@ -178,7 +182,7 @@ preds_train <- predict(rf, X_train)
 
 ggplot(data = data.frame(preds_train, y_train), aes(x = preds_train, y = y_train)) +
   geom_point(alpha = 0.5) +
-  geom_abline(slope = 1, intercept = 0, color = 'red', linetype = 'dashed') +
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +
   labs(x = "Predicted BMI", y = "True BMI") +
   theme_minimal()
 ```
@@ -192,6 +196,6 @@ sample_weights_test <- class_weight[df_web$label[idx_test]]
 mean_absolute_error_baseline <- sum(abs(y_test - rep(mean(y_train), length(y_test))) * sample_weights_test) / sum(sample_weights_test)
 mean_absolute_error_model <- mean(abs(y_test - preds_test) * sample_weights_test)
 
-cat(sprintf('Mean absolute error (baseline): %.3f\n', mean_absolute_error_baseline))
-cat(sprintf('Mean absolute error: %.3f\n', mean_absolute_error_model))
+cat(sprintf("Mean absolute error (baseline): %.3f\n", mean_absolute_error_baseline))
+cat(sprintf("Mean absolute error: %.3f\n", mean_absolute_error_model))
 ```
