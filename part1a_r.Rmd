@@ -158,26 +158,40 @@ sample_weights <- class_weight[df_web$label[idx_train]]
 rf <- randomForest(x = X_train, y = y_train, ntree = 100, nodesize = 5, maxnodes = 20)
 ```
 
-## Extract predictors and plot
+## Extract predicted values and plot
 
 ```{r}
-preds <- predict(rf, X_test)
+#Extract the predicted values for the test data and plot them against the true values.
 
-plot(preds, y_test, pch = 16, col = rgb(0, 0, 0, 0.5))
-abline(a = 0, b = 1, col = 'red', lty = 3)
+preds_test <- predict(rf, X_test)
+
+ggplot(data = data.frame(preds_test, y_test), aes(x = preds_test, y = y_test)) +
+  geom_point(alpha = 0.5) +
+  geom_abline(slope = 1, intercept = 0, color = 'red', linetype = 'dashed') +
+  labs(x = "Predicted BMI", y = "True BMI") +
+  theme_minimal()
 ```
 
 ```{r}
-plot(predict(rf, X_train), y_train, pch = 16, col = rgb(0, 0, 0, 0.5))
-abline(a = 0, b = 1, col = 'red', lty = 3)
+# Do the same for the training data
+preds_train <- predict(rf, X_train)
+
+ggplot(data = data.frame(preds_train, y_train), aes(x = preds_train, y = y_train)) +
+  geom_point(alpha = 0.5) +
+  geom_abline(slope = 1, intercept = 0, color = 'red', linetype = 'dashed') +
+  labs(x = "Predicted BMI", y = "True BMI") +
+  theme_minimal()
 ```
 
+## Define the absolute mean error
+
 ```{r}
+# Define the mean absolute error
 sample_weights_test <- class_weight[df_web$label[idx_test]]
 
-mae_baseline <- sum(abs(y_test - rep(mean(y_train), length(y_test))) * sample_weights_test) / sum(sample_weights_test)
-mae_model <- mean(abs(y_test - preds) * sample_weights_test)
+mean_absolute_error_baseline <- sum(abs(y_test - rep(mean(y_train), length(y_test))) * sample_weights_test) / sum(sample_weights_test)
+mean_absolute_error_model <- mean(abs(y_test - preds_test) * sample_weights_test)
 
-cat(sprintf('Mean absolute error (baseline): %.3f\n', mae_baseline))
-cat(sprintf('Mean absolute error: %.3f\n', mae_model))
+cat(sprintf('Mean absolute error (baseline): %.3f\n', mean_absolute_error_baseline))
+cat(sprintf('Mean absolute error: %.3f\n', mean_absolute_error_model))
 ```
