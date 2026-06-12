@@ -91,14 +91,9 @@ ggplot(df_web, aes(x = label)) +
 
 ```{r}
 # Data restructuring
-
-#Add the varibale "active" to the data set, where active is 1 if the person commutes by walk or bike, and 0 for the rest.
-df_web <- df_web %>%
-  mutate(MTRANS = ifelse(MTRANS %in% c("Walking", "Bike"), 1, 0))
+#Convert categorical variables to numeric.
 
 df_web$MTRANS <- binary(df_web$MTRANS, c("Walking", "Biking"))
-
-#Convert categorical variables to numeric.
 df_web$Gender <- binary(df_web$Gender, "Male")
 df_web$family_history_with_overweight <- binary(df_web$family_history_with_overweight, "yes")
 df_web$FAVC <- binary(df_web$FAVC, "yes")
@@ -156,10 +151,14 @@ y_test <- df_web$BMI[idx_test]
 sample_weights <- class_weight[df_web$label[idx_train]]
 ```
 
+## Run random forest
+
 ```{r}
 #Run random forest on the training data
 rf <- randomForest(x = X_train, y = y_train, ntree = 100, nodesize = 5, maxnodes = 20)
 ```
+
+## Extract predictors and plot
 
 ```{r}
 preds <- predict(rf, X_test)
@@ -169,7 +168,7 @@ abline(a = 0, b = 1, col = 'red', lty = 3)
 ```
 
 ```{r}
-plot(predict(reg, X_train), y_train, pch = 16, col = rgb(0, 0, 0, 0.5))
+plot(predict(rf, X_train), y_train, pch = 16, col = rgb(0, 0, 0, 0.5))
 abline(a = 0, b = 1, col = 'red', lty = 3)
 ```
 
