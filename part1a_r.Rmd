@@ -35,10 +35,15 @@ library(dplyr)
 library(devtools)
 library(testthat)
 library(roxygen2)
+library(reproduciblecode)
 
 #source functions from my function folder
 source(file.path("R", "Rfunctions.R"))
 ```
+
+# Data description
+
+This data set is retrieved from the UCI website. We have `498` subjects that have been surveyed and the rest is synthetically generated. THe data is in tabular format and describes for each subject `Demographics`, `Physical Attributes`, and other variables measured like `Smoking`. In this file we will explore the data and build a regression/Random Forest model to predict `BMI`. 
 
 ```{r Load the Data, echo=F}
 #Now we load the data from the UCI repository. We will download the zip file, extract it, and read the CSV file.
@@ -112,7 +117,9 @@ df_web <- df_web %>%
 
 
 
-## Predicting BMI using the Real Data
+## Predicting BMI using the Survey Data
+
+In this part we will take a look at how to predict BMI in the surveyed individuals. First we will look into class imbalance between the different `BMI` categories. For the `Random Forest` we will have to split our data into train and test sets, and define our `X` (predictors) and `Y` (outcome). Then we will run the random forest and extract the predictors.
 
 ```{r}
 # Investigate class imbalance of BMI categories
@@ -150,13 +157,12 @@ sample_weights <- class_weight[df_web$label[idx_train]]
 ```
 
 ```{r}
-#Run random forest and linear regression on the training data
-reg <- lm(BMI ~ ., data = cbind(X_train, BMI = y_train))
+#Run random forest on the training data
 rf <- randomForest(x = X_train, y = y_train, ntree = 100, nodesize = 5, maxnodes = 20)
 ```
 
 ```{r}
-preds <- predict(reg, X_test)
+preds <- predict(rf, X_test)
 
 plot(preds, y_test, pch = 16, col = rgb(0, 0, 0, 0.5))
 abline(a = 0, b = 1, col = 'red', lty = 3)
