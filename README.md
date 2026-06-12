@@ -12,19 +12,19 @@ This project uses `renv` for package management.
 ## Data description
 The analysis uses the UCI obesity dataset with 498 real survey records plus synthetic data. The dataset includes demographic, physical, and lifestyle variables, and is used to calculate BMI and assign BMI categories.
 
-## Predicting BMI using the Survey Data
+### Predicting BMI using the Survey Data
 The notebook prepares the survey data for modeling by:
 
 - splitting into training and test sets
 - building a model to predict BMI values
 
-## Run random forest
+### Run random forest
 A random forest model is trained on the survey data with a 70/30 train/test split. The model uses predictors such as age, gender, family history, smoking habits, and physical activity.
 
-## Extract predicted values and plot
+### Extract predicted values and plot
 The notebook compares predicted BMI values with actual BMI values in the test set. It produces diagnostic plots to show model performance visually. Plotting predicted values against real values.
 
-## Define the absolute mean error
+### Define the absolute mean error
 Model performance is quantified using mean absolute error (MAE), and the notebook compares the model MAE against a baseline MAE.
 
 ## Folder structure
