@@ -19,24 +19,10 @@ For the full assessment criteria see the Rubric. For full details on the assignm
 
 ```{r Set up Environment and Load PAckages, echo=F}
 # Virtual Environment Setup for R
-install.packages('renv', repos='http://cran.us.r-project.org')
-library(renv)
 #renv::init()
-renv::activate()
+#renv::activate()
 
 #Load necessary packages
-renv::install('httr', repos='http://cran.us.r-project.org')
-renv::install('readr', repos='http://cran.us.r-project.org')
-renv::install('ggplot2', repos='http://cran.us.r-project.org')
-renv::install('randomForest', repos='http://cran.us.r-project.org')
-renv::install("styler")
-renv::install("lintr")
-renv::install("testthat")
-renv::install("tidyverse")
-renv::install("dplyr")
-renv::install("devtools")
-renv::install("testthat")
-
 library(httr)
 library(readr)
 library(ggplot2)
@@ -48,6 +34,7 @@ library(tidyverse)
 library(dplyr)
 library(devtools)
 library(testthat)
+library(roxygen2)
 
 #source functions from my function folder
 source(file.path("R", "Rfunctions.R"))
@@ -119,6 +106,7 @@ df_web <- df_web %>%
   mutate(CAEC = as.numeric(factor(CAEC, levels = c('no', 'Sometimes', 'Frequently', 'Always'))) -1,
          CALC = as.numeric(factor(CALC, levels = c('no', 'Sometimes', 'Frequently', 'Always'))) -1)
 ```
+
 
 
 
